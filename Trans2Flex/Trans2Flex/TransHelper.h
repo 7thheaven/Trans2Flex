@@ -7,11 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+typedef enum {
+    TransOptionNormal  = 0,  //抹平当前层级关系，重新整理
+    TransOptionMaintainLevel,  //保持当前层级关系
+}TransOption;
 
 @interface TransHelper : NSObject
 
 + (TransHelper *)sharedHelper;
 
-- (void)test;
+- (NSDictionary *)extractViewInfoTree:(UIView *)view;
+
+- (NSArray *)extractViewInfoList:(UIView *)view;
 
 @end

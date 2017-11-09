@@ -37,7 +37,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    [[TransHelper sharedHelper] test];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    NSArray *res = [[TransHelper sharedHelper] extractViewInfoList:self.view];
+    NSLog(@"%@",res);
 }
 
 
