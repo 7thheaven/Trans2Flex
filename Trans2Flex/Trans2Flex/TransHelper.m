@@ -14,6 +14,7 @@
 
 @property (nonatomic, strong) UIView *currentRootView;
 @property (nonatomic, strong) NSMutableArray *viewInfoList;
+@property (nonatomic, assign) NSUInteger zIndex;
 
 @end
 
@@ -64,13 +65,15 @@ static TransHelper *transHelper = nil;
         name = @"view";
     }
     [dic setObject:name forKey:@"name"];
+    [dic setObject:[NSString stringWithFormat:@"%@%p", name, view] forKey:@"uniqueId"];
     [dic setObject:[[view class] description] forKey:@"oriClass"];
     if ([view respondsToSelector:@selector(backgroundColor)]) {
         UIColor *color = [view performSelector:@selector(backgroundColor)];
         if (color && ![color isEqual:[UIColor clearColor]]) {
-            [dic setObject:[[self class] hexFromUIColor:color] forKey:@"backgroundColor"];
+            [dic setObject:[[self class] hexFromUIColor:color] forKey:@"background"];
         }
     }
+    [dic setObject:@(self.zIndex++) forKey:@"zIndex"];
     return [NSDictionary dictionaryWithDictionary:dic];
 }
 
@@ -78,6 +81,7 @@ static TransHelper *transHelper = nil;
 {
     self.currentRootView = view;
     self.viewInfoList = [NSMutableArray array];
+    self.zIndex = 0;
 }
 
 - (NSDictionary *)extractViewInfoRecursively:(UIView *)view
@@ -85,6 +89,10 @@ static TransHelper *transHelper = nil;
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:[self dealSingleViewInfo:view option:TransOptionMaintainLevel]];
     NSMutableArray *children = [NSMutableArray array];
     for (UIView *child in view.subviews) {
+        //跳过不可见视图
+        if ([child isHidden]) {
+            continue;
+        }
         [children addObject:[self extractViewInfoRecursively:child]];
     }
     [dic setObject:[NSArray arrayWithArray:children] forKey:@"children"];
@@ -102,6 +110,10 @@ static TransHelper *transHelper = nil;
     NSDictionary *dic = [self dealSingleViewInfo:view option:TransOptionNormal];
     [self.viewInfoList addObject:dic];
     for (UIView *child in view.subviews) {
+        //跳过不可见视图
+        if ([child isHidden]) {
+            continue;
+        }
         [self collectViewInfoRecursively:child];
     }
 }
